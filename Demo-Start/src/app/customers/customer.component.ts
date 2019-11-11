@@ -19,6 +19,8 @@ export class CustomerComponent implements OnInit {
       firstName: ['adasdsa', [Validators.required, Validators.minLength(3)]],
       lastName: ['', [Validators.required, Validators.maxLength(40)]],
       email: ['', [Validators.required, Validators.email]],
+      phone:['',[Validators.required]],
+      notification:['email'],
       sendCatalog: [true]
     })
     setTimeout(() => {
@@ -37,6 +39,16 @@ export class CustomerComponent implements OnInit {
       lastName: 'Harkness',
       sendCatalog:false
     })
+  }
+
+  setNotification(notifyVia: string): void{
+    const phoneControl = this.customerForm.get('phone')
+    if (notifyVia == 'text') {
+      phoneControl.setValidators(Validators.required)
+    } else {
+      phoneControl.clearValidators()
+    }
+    phoneControl.updateValueAndValidity()
   }
 
 }

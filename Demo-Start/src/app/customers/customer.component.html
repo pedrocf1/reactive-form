@@ -72,6 +72,51 @@
       </div>
 
       <div class="form-group row mb-2">
+        <label class="col-md-2 col-form-label"
+               for="phone">Phone</label>
+        <div class="col-md-8">
+          <input class="form-control"
+                 id="phone"
+                 type="phone"
+                 placeholder="phone (required)"
+                 formControlName="phone"
+                 [ngClass]="{'is-invalid': (customerForm.get('phone').touched || customerForm.get('phone').dirty) && !customerForm.get('phone').valid }" />
+          <span class="invalid-feedback">
+            <span *ngIf="customerForm.get('phone').errors || customerForm.get('phone').required">
+              Please enter your phone address.
+            </span>
+            <span *ngIf="customerForm.get('phone').errors || customerForm.get('phone').email">
+              Please enter a valid phone.
+            </span>
+          </span>
+        </div>
+      </div>
+
+      <div class="form-group row mb-2">
+        <label for="" class="col-md-2 col-form-label pt-0">Send Notifications</label>
+        <div class="col-md-8">
+          <div class="form-check form-check-inline">
+            <label for="" class="form-check-label">
+              <input class="form-check-input"
+                     type="radio"
+                     value="email"
+                     formControlName="notification"
+                     (click)="setNotification('email')">Email
+            </label>
+          </div>
+          <div class="form-check form-check-inline">
+            <label for="" class="form-check-label">
+              <input class="form-check-input" 
+                     type="radio"
+                     value="text"
+                     formControlName="notification"
+                     (click)="setNotification('text')"> Text
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group row mb-2">
         <div class="col-md-8">
           <div class="form-check">
             <label class="form-check-label">
