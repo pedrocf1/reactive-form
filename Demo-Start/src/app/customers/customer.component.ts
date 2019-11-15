@@ -1,8 +1,29 @@
 import { Component, OnInit } from '@angular/core';
-import { FormGroup, FormControl, FormBuilder, Validators } from '@angular/forms';
-
+import { FormGroup, FormControl, FormBuilder, Validators, AbstractControl, ValidatorFn, ControlContainer } from '@angular/forms';
+import { flatMap } from "rxjs/operators";
 import { Customer } from './customer';
 
+function ratingRange(min:number, max:number): ValidatorFn{
+  return (c: AbstractControl): {[key: string]: boolean} | null =>{
+    if (c.value !== null && (isNaN(c.value) || c.value<min || c.value>max)) {
+      return {'range':true}
+    }
+    return null
+  }
+}
+function emailMatcher(c:AbstractControl): {[key:string]:boolean}|null{
+    const emailControl = c.get('email')
+    const confirmControl = c.get('confirmEmail')
+
+    if(emailControl.pristine || confirmControl.pristine){
+      return null
+    }
+
+    if(emailControl.value === confirmControl.value){
+      return null
+    }
+    return {'match':true}
+}
 @Component({
   selector: 'app-customer',
   templateUrl: './customer.component.html',
@@ -18,14 +39,19 @@ export class CustomerComponent implements OnInit {
     this.customerForm = this.fb.group({
       firstName: ['adasdsa', [Validators.required, Validators.minLength(3)]],
       lastName: ['', [Validators.required, Validators.maxLength(40)]],
-      email: ['', [Validators.required, Validators.email]],
+      emailGroup:this.fb.group({
+        email: ['', [Validators.required, Validators.email]],
+        confirmEmail:['']
+      },{validator: emailMatcher}),
       phone:['',[Validators.required]],
       notification:['email'],
-      sendCatalog: [true]
+      sendCatalog: [true],
+      rating:[null, ratingRange(1,5)]
     })
     setTimeout(() => {
       this.populateTestData()
     }, 5000);
+    this.customerForm.get('notification').valueChanges.subscribe(value=>this.setNotification(value))
   }
 
   save() {
@@ -42,6 +68,7 @@ export class CustomerComponent implements OnInit {
   }
 
   setNotification(notifyVia: string): void{
+    console.log('entrei no metodo e tals')
     const phoneControl = this.customerForm.get('phone')
     if (notifyVia == 'text') {
       phoneControl.setValidators(Validators.required)
