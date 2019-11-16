@@ -44,6 +44,9 @@ export class CustomerComponent implements OnInit {
   get addresses(): FormArray{
     return <FormArray>this.customerForm.get('addresses')
   }
+  addAddress():void{
+    this.addresses.push(this.buildAddress())
+  }
 
   constructor(private fb: FormBuilder) { }
 
@@ -59,7 +62,8 @@ export class CustomerComponent implements OnInit {
       notification:['email'],
       rating:[null, ratingRange(1,5)],
       sendCatalog: [true],
-      addressses: this.fb.array([this.buildAddress()])
+      addresses: this.fb.array([this.buildAddress()]),
+      zip:['']
     })
     setTimeout(() => {
       this.populateTestData()
