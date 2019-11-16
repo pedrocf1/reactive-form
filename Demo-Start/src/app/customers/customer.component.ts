@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormGroup, FormControl, FormBuilder, Validators, AbstractControl, ValidatorFn, ControlContainer } from '@angular/forms';
+import { FormGroup, FormControl, FormBuilder, Validators, AbstractControl, ValidatorFn, ControlContainer, FormArray } from '@angular/forms';
 import { debounceTime } from "rxjs/operators";
 import { Customer } from './customer';
 
@@ -11,6 +11,7 @@ function ratingRange(min:number, max:number): ValidatorFn{
     return null
   }
 }
+
 function emailMatcher(c:AbstractControl): {[key:string]:boolean}|null{
     const emailControl = c.get('email')
     const confirmControl = c.get('confirmEmail')
@@ -33,10 +34,15 @@ function emailMatcher(c:AbstractControl): {[key:string]:boolean}|null{
 export class CustomerComponent implements OnInit {
   customerForm: FormGroup
   customer = new Customer();
+
   emailMessage: string
   private validationMessages={
     requires: 'Please enter your email address.',
     email:'Please enter a valid email address.'
+  }
+
+  get addresses(): FormArray{
+    return <FormArray>this.customerForm.get('addresses')
   }
 
   constructor(private fb: FormBuilder) { }
@@ -51,12 +57,14 @@ export class CustomerComponent implements OnInit {
       },{validator: emailMatcher}),
       phone:['',[Validators.required]],
       notification:['email'],
+      rating:[null, ratingRange(1,5)],
       sendCatalog: [true],
-      rating:[null, ratingRange(1,5)]
+      addressses: this.fb.array([this.buildAddress()])
     })
     setTimeout(() => {
       this.populateTestData()
     }, 5000);
+
     //notification validate
     this.customerForm.get('notification').valueChanges.subscribe(value=>this.setNotification(value))
 
@@ -68,6 +76,17 @@ export class CustomerComponent implements OnInit {
     // this.customerForm.valueChanges.subscribe(x=>console.log('customerForm Changes', Object.keys(x)))
   }
 
+  buildAddress(): FormGroup{
+    return this.fb.group({
+      addressType:'home',
+      street1:'',
+      street2:'',
+      city:'',
+      state:'',
+      zip:''
+    })
+  }
+
   save() {
     console.log(this.customerForm);
     console.log('Saved: ' + JSON.stringify(this.customerForm));
@@ -76,7 +95,7 @@ export class CustomerComponent implements OnInit {
   setMessage(c: AbstractControl){
     this.emailMessage = ''
     if((c.touched || c.dirty) && c.errors){
-      this.emailMessage = Object.keys(c.errors).map(key=>this.validationMessages[key]).join(' ')
+      this.emailMessage = Object.keys(c.errors).map(key=>this.validationMessages[key]).join(' gg ')
     }
   }
 
